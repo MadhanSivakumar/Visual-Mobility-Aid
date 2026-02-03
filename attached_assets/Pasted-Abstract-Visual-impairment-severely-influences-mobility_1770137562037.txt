@@ -1,0 +1,562 @@
+Abstract—Visual impairment severely influences mobility, spa
+tial cognition, and autonomy. As a result, there is a growing
+demand for intelligent assistive systems capable of understanding
+complex environments. This paper presents a general-purpose,
+offline assistive vision system designed to enhance the experience
+of partially sighted users by providing real-time object detec
+tion, relative distance estimation, and scene recognition through
+naturalistic auditory feedback. The primary objective of this
+work is to develop a fast, portable, and network-free solution
+that increases environmental awareness during navigation while
+reducing cognitive load. The proposed system integrates three
+deep learning components within a unified processing pipeline:
+YOLOv5s for object detection, a bounding-box–based approxi
+mation model for distance estimation, and EfficientNet-B0 trained
+on the Places365 dataset for contextual scene classification. Video
+frames are processed in real time using PyTorch and OpenCV,
+while detected information is converted into spoken descriptions
+via the pyttsx3 text-to-speech engine. All predictions are overlaid
+onto the live video stream while simultaneous auditory feedback
+is provided. Experimental evaluations conducted in both indoor
+and outdoor environments demonstrate real-time performance of
+24–28 FPS without reliance on cloud services. Object detection
+remained consistent across classes, distance estimation exhibited
+low average error sufficient for mobility guidance, and scene
+classification remained stable even under rapid camera motion.
+Overall, the combined outputs deliver reliable and informative
+feedback, indicating that the proposed system is effective for use
+in practical assistive navigation devices.
+Index Terms—Assistive vision system, Efficientnet, Object
+detection, Real-time navigation, Scene recognition, Visually im
+paired, Yolov5.
+I. INTRODUCTION
+Visual impairment diminishes an individual’s independence,
+movement, and general security. With more than 285 million
+individuals with moderate to severe visual deficits, the demand
+for trustworthy assistive devices is rising with every single day
+[1],[2],[7].
+2nd Madhan S
+Department of Computer Science and Business Systems
+Dr.N.G.P Institute Of Technology
+Coimbatore, India
+22cb030@drngpit.ac.in
+4th Chandra Bose V
+Department of Computer Science and Business Systems
+Dr.N.G.P Institute Of Technology
+Coimbatore, India
+22cb008@drngpit.ac.in
+Nevertheless, conventional supports such as a walking cane,
+tactile maps, or even trained guide dogs are of invaluable help
+that fails to provide real-time understanding of the environ
+ment or object-specific knowledge [7]. Over the past ten years,
+advances in artificial intelligence and computer vision have
+enabled machines to achieve unbelievable accuracy when it
+comes to object recognition and the interpretation of complex
+scenes. As an example, object detection models based on
+deep learning, like YOLOv5, as well as scene classification
+models like EfficientNet [1],[5],[9],[10], have established a
+new quantum of performance and real-time processing and
+have become the most suitable ones to enable the next gener
+ation of assistive technologies. Combined with sound output
+using text-to-speech synthesis such as pyttsx3, these models
+are able to convert raw visual data into perceivable sounds,
+thus providing instant information to blind people about the
+things around them. Such innovations will be utilized within
+this project to develop an intelligent system that can be used
+to real-time detect objects and identify sceneries with the aim
+of enhancing experiences in the everyday lives of the visually
+impaired users. The objective of the study is to develop a
+real-time assistive vision system, which will improve spatial
+awareness, navigation, and autonomy of the visually impaired
+individuals. It should be capable of identifying objects, quickly
+and correctly, with the aid of YOLOv5 architecture, but search
+scenes with the assistance of EfficientNet, which is trained
+on the Places365 dataset. These models generate speech
+descriptions instantly with the assistance of the pyttsx3 text
+to-speech engine. It is designed on the basis of the whole
+system on PyTorch and OpenCV to provide efficient work in
+real time [4],[5],[6],[9]. Furthermore, the solution is intended
+to be accessible, customizable, and adaptable to wearable
+devices, smartphones, and similar platforms, enabling visu
+ally impaired users to benefit from reliable and continuous
+guidance [4],[5],[6],[9].
+Despite these, there are many limitations that exist beyond
+the functioning of these assistive tools and technologies in
+real-world environments. Most systems presently suffer from
+considerable delays due to heavy computational loads and,
+thus, are not suitable for dynamic navigation where immediate
+feedback is needed [2],[4]. Moreover, most solutions only de
+tect objects without considering their contextual information,
+a broader entity necessary for understanding the nature of the
+surroundings, whether the user is in a kitchen, street, office,
+or outdoor environment. A lack of object diversity further
+restricts the usefulness of many systems, particularly those
+that are trained solely on restricted datasets such as COCO
+(Common Objects in Context). There is also the inability of
+most of the existing tools to integrate into one system most
+of the important functions that include, but are not limited
+to, detection, scene interpretation, distance estimation, and
+audio guidance. Again, numerous solutions rely on processing
+in the cloud, a factor that contributes to increasing latency
+while it demands internet connectivity and may raise some
+issues in terms of cost and accessibility. In the context of
+these limitations, this research aims to develop a unified
+offline platform able to provide real-time object detection,
+scene recognition, and auditory guidance without external
+dependencies.
+In this work, the premise is that YOLOv5-based object de
+tection combined with EfficientNet-based scene classification
+and real-time audio feedback will prove to enhance spatial
+awareness and the ability to navigate significantly. Further,
+it also theorizes that integrating these models into a single
+deep-learning pipeline will not only decrease latency but also
+enhance detection accuracy, therefore, delivering faster yet
+richer information about the environment. The system will
+operate entirely offline and, therefore, will be able to deliver
+performance regardless of network connectivity, making it
+more feasible and stable to use in routine and daily operations
+[4], [9]. This is why this research is important: it makes
+its contributions to the sphere of assistive technology. The
+suggested system in this paper combines, in the first instance,
+YOLOv5, EfficientNet, pyttsx3, PyTorch, and OpenCV within
+a real-time system with the ability to read visual images and,
+consequently, offer information in audio. This is a two-part
+deep learning pipeline that offers end-to-end environmental
+awareness through the combination of object detection and
+contextual scene understanding. The auditory feedback engine
+is provided in real-time and makes sure that the user is guided
+immediately, and the custom distance estimation mechanism
+enables the user to get a better idea about how close objects
+discovered are to the user by estimating the proximity of the
+object detected by the user. Lastly, the system is able to operate
+offline, has low latency, and alternative formats of devices
+will make the system very accessible and usable in everyday
+settings.
+Technically, the paper is a bridge between conventional
+object detecting super tools and end-to-end assistive systems,
+hence making it a more feasible and intelligent solution for
+visually impaired people. It also gives a detailed research
+into the weaknesses that exist in the current technologies
+and demonstrates how integrated deep-learning models can be
+implemented in the development of an effective and easy-to
+use assistive tool [2],[5],[7],[9].
+II. MATERIALS AND METHODS
+A. System Workflow Overview
+The proposed assistive vision system follows a structured
+and sequential processing pipeline designed to function in
+real time. The workflow begins with continuous video frame
+acquisition from a camera and proceeds through several stages,
+including image preprocessing, object detection using the
+YOLOv5 model, distance estimation, and scene recognition
+using the EfficientNet. Here, I stands for the actual pixel
+number, whereas µ and σ show the average and spread of the
+data values. This keeps training and testing conditions aligned.
+The outputs from these modules are then integrated and
+converted into auditory feedback using the pyttsx3 text-to
+speech engine. Lastly, the system superimposes the results of
+the processing on the live video stream and shows it to the
+user. All these elements are used together, ensuring minimum
+delay and smooth interaction for the visually impaired users.
+B. Video Frame Acquisition
+The process starts off grabbing video chunks using an HD
+webcam, powered by OpenCV’s VideoCapture(), then it runs
+at around 30 fps, so things stay fluid. Each frame is pulled
+out one at a time, after which it is converted from the BGR
+format in which it is normally represented to the RGB format
+required by the neural networks. Then, they proceed to the
+prep stage immediately.
+Fig. 1. Workflow Diagram of the Proposed Real–Time Assistive Vision
+System
+Fig. 1 shows a real-time vision-based assistive system
+pipeline. Video frames are captured from an HD webcam and
+F. Scene Recognition Using EfficientNet-B0
+preprocessed before being sent to object detection (YOLOv5)
+and scene recognition (EfficientNet / Places365) modules.
+Detected objects are used to estimate distance, while scene
+understanding provides context. The system then generates
+priority-based audio feedback using text-to-speech. All outputs
+are integrated for low-latency, real-time visual overlays and
+auditory feedback to the user.
+C. Image Preprocessing Module
+Image preparation is important- it prepares the frames
+to both YOLOv5 and EfficientNet. Under YOLOv5, scaling
+each frame to 640 by 640 pixels is done by either padding
+where necessary or without stretching shapes. Black bars
+maintain ratios instead of being stretched. Values are changed
+to be within a smaller range, and thus, the network operates
+smoother. This modification increases its guessing ability in
+use. In EfficientNet to detect scenes, each frame is resized to
+224 x 224 pixels and converted into a PIL-readable format.
+It does not work with raw pixel data but instead normalised
+values, which are calculated by ImageNet or Places365 aver
+ages and spreads. This scaling is based upon a given formula
+in math.
+Normalized Image = I −µ
+(1)
+σ
+In (1), I represents the actual pixel value, while µ and σ
+denote the mean and standard deviation, respectively, ensuring
+that the training and testing conditions remain aligned.
+D. Object Detection Using YOLOv5
+YOLOv5 is a deep-learning–based object detection model
+used for real-time inference. In this system, each video frame
+is processed to identify bounding box coordinates, class in
+dices, class labels, and confidence scores.
+After detection, post-processing techniques are applied, in
+cluding filtering weak predictions based on confidence thresh
+olds and merging overlapping bounding boxes using Non
+Maximum Suppression (NMS). The final detections are drawn
+on the video frame with labeled bounding boxes and corre
+sponding confidence values.
+E. Distance Estimation Module
+The system estimates the distance between the camera and
+detected objects to enhance spatial awareness. Since no depth
+sensor is used, distance estimation is based on the apparent
+size of the object in the image. The approximate distance D
+is calculated using the height of the object’s bounding box in
+pixels as follows:
+D≈ Hpixels
+k
+(2)
+where Hpixels represents the height of the bounding box
+in pixels and k is an experimentally determined constant
+derived from calibration using objects at known distances.
+This approximation provides meaningful range information,
+particularly useful for blind or low-vision users.
+Scene recognition is performed using the EfficientNet-B0
+model trained on the Places365 dataset. The cleaned image
+is directly fed into the network, which outputs probability
+scores for 72 possible scene categories. The scene class with
+the highest confidence score is selected as the predicted
+environment. This class index is then mapped to a descriptive
+label using a predefined lookup table, allowing the system
+to identify environments such as kitchens, streets, parks, or
+bedrooms without unnecessary detail.
+G. Audio Feedback Generation Using pyttsx3
+Audio feedback is generated using the pyttsx3 text-to
+speech engine, which operates locally without requiring an in
+ternet connection. This ensures fast, low-latency speech output
+with clear and natural-sounding audio. Users can customize
+speech parameters such as rate, volume, and voice tone. When
+critical objects—such as vehicles or nearby individuals—are
+detected, they are announced immediately along with their es
+timated distance. General environmental updates are provided
+periodically to keep users informed without overwhelming
+them.
+H. Real-Time Integration and Display
+All detected objects, estimated distances, and scene infor
+mation are integrated in real time. Using OpenCV, bounding
+boxes displaying object names, confidence scores, distances,
+and positional information are overlaid directly on the live
+video stream. Simultaneously, corresponding audio cues are
+generated, enabling both visually impaired and sighted users to
+understand their surroundings effectively. The system operates
+with minimal latency, ensuring an intuitive, responsive, and
+real-time user experience.
+The proposed algorithm processes a live video stream to
+assist visually impaired users by providing real-time environ
+mental awareness. Video frames are captured and preprocessed
+before being analyzed using YOLOv5 for object detection and
+EfficientNet-B0 for scene recognition. Detected objects are
+used to estimate distances based on bounding-box dimensions.
+Critical information, including object type, distance, and scene
+context, is converted into prioritized audio feedback using
+text-to-speech, while annotated visual outputs are displayed
+in real time. The system continues operation until manually
+terminated by the user.
+I. Final Processing Loop
+The system operates continuously on a live video stream
+until manually terminated by the user, typically by pressing
+the ‘q‘ key. During execution, each captured frame undergoes
+preprocessing, object detection, distance estimation, and scene
+recognition in a sequential pipeline. The detected information
+is converted into prioritized audio feedback and simultane
+ously visualized on the display. Upon termination, the sys
+tem safely releases the camera feed, stops all text-to-speech
+processes, and closes all active display windows, ensuring
+that no background processes remain active. The complete
+operationalworkflowof theproposedassistivevisionsystem
+issummarizedinAlgorithm1.
+Algorithm1UnifiedReal-TimeAssistiveVisionSystemfor
+VisuallyImpairedUsers
+Require: Livevideostreamfromcamera
+Ensure:Real-time object detection, distance estimation,
+scenerecognition, andaudiofeedback
+1: LoadYOLOv5smodel forobjectdetection
+2: LoadEfficientNet-B0model forscenerecognition
+3: Initializepyttsx3text-to-speechengine
+4: StartvideocaptureusingOpenCV
+5: whilecamerastreamisactivedo
+6: Readcurrent framefromcamera
+7: Convert framefromBGRtoRGBformat
+8: Resizeframeto640×640forYOLOv5
+9: Normalizepixelvalues
+10: Resizeframeto224×224forEfficientNet-B0
+11: Applymean–standarddeviationnormalization
+12: PerformobjectdetectionusingYOLOv5
+13: Extract boundingboxes, class IDs, labels, andconfi
+dencescores
+14: Apply confidence thresholding and Non-Maximum
+Suppression
+15: foreachdetectedobjectdo
+16: Computebounding-boxheightHpx
+17: EstimatedistanceD←K/Hpx
+18: endfor
+19: PerformscenerecognitionusingEfficientNet-B0
+20: Select sceneclasswithhighestprobability
+21: Generateprioritizedspeechoutput:
+22: “objectatdistancemeters inscene”
+23: Speakoutputusingpyttsx3
+24: Overlayboundingboxes,distances,andscenelabelson
+frame
+25: Displayannotatedvideoframe
+26: ifuserpresses‘q‘ then
+27: break
+28: endif
+29: endwhile
+30: Stoptext-to-speechengine
+31: Releasecameraresources
+32: Closealldisplaywindows
+III. RESULTS
+A. SystemPerformanceOverview
+The test focusedonanassistivevisionsystemthat recog
+nizesobjects,attemptstodeterminethedistance,andidentifies
+a scene using a video stream. The tests were conducted
+indoorsandoutdoors,andwithintheset-upspaces.Thesystem
+maintainedconstant processingat 24–28framesper second,
+thusallowingvisualstobecomesoundwithouthiccups,which
+isuseful for individualswithpooreyesight.Objectdetection
+remainedaccurateusingYOLOv5toidentifyeverydayitems
+from the COCOdataset, while EfficientNet-B0 effectively
+handleddiverseenvironmentsandmaintainedconsistentscene
+labeling.
+B. DetectingObjectPerformance
+YOLOv5s,whichwas trainedinadvanceusingtheCOCO
+dataset,wasemployedtodetectobjectsinreal-timevideo.The
+model successfullyidentifiedmultipleobjectssimultaneously
+anddisplayedboundingboxeswithcorresponding labels. It
+performedreliablyundervaryinglightingconditions;however,
+low-light environments resultedinminor reductions inaccu
+racy.Overall, theresults remainedconsistent acrossdifferent
+objectcategories, as illustratedinFigure2.
+C. ReasoningforMeasuringAccuracy
+Every detected object in the video data was evaluated
+basedonhowfrequentlyitappearedacrossdifferentclipsand
+environmental conditions.This approachwasused toassess
+thereliabilityofobjectdetection.Conventionalaccuracymet
+rics suchasprecisionand recallwerenot employeddue to
+theabsenceof a fully labeledground truthdataset. Instead,
+consistent detection and repeatable results under changing
+conditions served as indicators of dependable performance.
+Figure 2 illustrates the detection consistency of YOLOv5
+across different object classes. Table 1 summarizes the de
+tectionperformanceforeachobject type.
+Fig.2. Actualversusestimateddistancefordifferentdetectedobjectclasses
+TABLEI
+SUMMARYOFOBJECTDETECTIONPERFORMANCEACROSSDIFFERENT
+OBJECTCLASSES
+S.No Object Source Detect. Detection
+Class Image(s) Cons.* Status
+1 Chair Car Interior High SuccessfullyDetected
+2 Person Car Interior, Street
+Scene
+VeryHigh SuccessfullyDetected
+3 Motorcycle StreetScene High SuccessfullyDetected
+4 Car StreetScene Medium SuccessfullyDetected
+5 Cow StreetScene High SuccessfullyDetected
+6 Building StreetScene Medium SuccessfullyDetected
+*Detectionconsistencywasdeterminedbyrepeatedsuccessfulbounding-box
+identificationacrossmultipleframesfromthesamescene.
+D. DistanceEstimationAccuracy
+Distanceestimationwasperformedbyanalyzingtheheight
+of theboundingboxsurroundingeachdetectedobject inthe
+videoframe.Therelativesizeof theboundingboxwasused
+toapproximate thedistanceof theobject fromthe camera.
+Althoughthecamerawasnotexplicitlycalibrated, thesystem
+producedstabledistanceestimatesforobjectslocatedbetween
+1and4meters.Thegeneratedaudiofeedbackcloselyaligned
+with the perceiveddistances as interpretedbyvisually im
+pairedusers.Acomparisonbetweentheestimatedandactual
+distancesfordifferentobjects isshowninFigure3.
+Fig.3. Comparisonofestimateddistanceversusactualdistancefordetected
+objects
+E. LogicforDistanceMeasurement
+Figure3showsthecomparisonbetweentheactualandesti
+mateddistancesfordifferentobjectclassesusingabounding
+boxheight approximationmethod. For eachdetectedobject,
+theheightof theboundingboxinpixels(Hpx)wasconverted
+intoanestimateddistance(D)usingEquation(3):
+D= K
+Hpx
+(3)
+whereKrepresentsascalingfactorderivedfromtheknown
+sizeof theobject.
+The absolute error between the actual distance and the
+estimateddistancewascomputedusingEquation(4):
+AbsoluteError=|Dactual−Destimated| (4)
+Adetailedsummaryofthedistanceestimationperformance
+acrossdifferentobjectclasses ispresentedinTable2.
+TABLEII
+DISTANCEESTIMATIONACCURACYFORDIFFERENTOBJECTCLASSES
+S.No Object Source Actual Estimated Error
+Class Image (m) (m) (m)
+1 Chair Car Interior 0.80 0.76 0.04
+2 Person Car Interior 1.50 1.62 0.12
+3 Motorcycle StreetScene 3.50 3.27 0.23
+4 Person StreetScene 12.00 11.15 0.85
+5 Car StreetScene 6.50 6.89 0.39
+6 Cow StreetScene 7.20 7.05 0.15
+7 Building StreetScene 25.00 23.80 1.20
+F. SceneRecognitionResults
+The scene recognitionmodule, basedonEfficientNet-B0
+trainedon thePlaces365dataset, successfully identifieden
+vironmentssuchaskitchens,hallways,bedrooms, roads, and
+classrooms.Duringevaluation, themodel achievedanaccu
+racyof 83%on its top-1prediction,while the top-5 accu
+racyreached94%.Thesystemmaintainedconsistentoutputs
+evenduring rapid cameramovement and suddenviewpoint
+changes, demonstrating its suitability for real-time assistive
+applications.
+G. IntegratedSystemOutput
+Once fullydeployed, the systemintegratedobject detec
+tion,distanceestimation,andscenerecognitionintoaunified
+processing pipeline. This seamless data flowenabled con
+tinuous real-time feedback, combining object identification,
+approximatedepthperception, andenvironmental awareness
+tosupportassistivevisionapplicationseffectively.
+Fig.4. Real-timeoutputshowingobjectdetection,boundingboxes,distance
+estimation, andscenerecognitionbytheproposedassistivevisionsystem
+Figure 4 illustrates the real-time output of the proposed
+assistivevisionsystem.Thedisplayedframesincludedetected
+objects with bounding boxes, textual labels, approximate
+distance estimates, andpredicted scene categories presented
+simultaneously.Thegraphical interfacesuccessfullyrendered
+all visual elements in real time, while the pyttsx3 text-to
+speech engine provided natural and uninterrupted auditory
+feedback. The average delay between object detection and
+speechoutputwasmeasuredtobelessthan300ms,ensuring
+timelyassistance.
+H. UserEvaluation
+Althoughno formal evaluation involving individualswith
+visual impairment was conducted, an initial assessment by
+the development teamindicated that the auditory feedback
+was clear and temporallyaccurate. Teammembers reported
+thatduringnavigationincomplexenvironments,accesstoin
+formationregardingnearbyobjects, theirestimateddistances,
+andcontextualscenedescriptionswasbeneficial.Futurework
+willincludestructureduserstudiesinvolvingvisuallyimpaired
+participants toevaluateusability, cognitive load, safety, and
+long-term effectiveness under real-world conditions rather than
+controlled laboratory settings.
+IV. DISCUSSION
+The proposed assistive vision system demonstrated effec
+tiveness in enhancing environmental perception for individuals
+with visual impairment by accurately identifying objects,
+estimating spatial relationships, and recognizing contextual
+scenes. Experimental results show that the integration of
+the YOLOv5s object detector with the EfficientNet-B0 scene
+recognition model achieves robust performance while main
+taining computational efficiency, which is essential for real
+time assistance. The system consistently operated at 24–28
+frames per second.
+A wide range of object categories, including humans, bi
+cycles, animals, and furniture, were detected with minimal
+degradation in dynamic scenes involving camera motion. How
+ever, reduced detection accuracy was observed for vehicles
+and large architectural structures at greater distances or under
+partial occlusion. This performance degradation is attributed
+to decreased bounding-box precision as object distance in
+creases and to occlusion effects that limit visible features.
+Despite these limitations, the system produced sufficiently
+stable bounding boxes to support reliable real-time auditory
+alerts.
+The distance estimation module was found to be effective
+for navigation assistance without requiring manual camera
+adjustments. Quantitative analysis indicated accurate distance
+predictions within typical ambulatory ranges of 1–6 m. Esti
+mation errors increased beyond 10 m, particularly for large
+static objects such as buildings, due to spatial compression
+effects that blur bounding-box boundaries. Nevertheless, the
+magnitude of these errors remained acceptable for practical
+auditory guidance.
+Scene recognition further enhanced spatial awareness by
+providing contextual information. The inclusion of scene la
+bels in voice alerts allowed users to more rapidly understand
+their surroundings. For instance, identifying a person within
+a street environment improved situational awareness and per
+ceived safety. Overall, the results demonstrate that the pro
+posed system effectively bridges computer vision capabilities
+with real-world usability. Its offline operation, low latency,
+and multi-task processing make it suitable for deployment in
+environments with limited or no internet connectivity.
+V. CONCLUSION
+This work presents an offline assistive vision system de
+signed to support individuals with visual impairment by en
+abling object recognition, distance estimation, and scene iden
+tification in real-world environments. By combining YOLOv5s
+with EfficientNet-B0, the system achieves a favorable balance
+between accuracy and processing speed, allowing deployment
+on standard computing devices such as laptops or compact
+embedded platforms. Experimental evaluations demonstrated
+consistent voice alerts and navigation cues in both indoor and
+outdoor settings.
+While the preliminary results are promising, further studies
+involving visually impaired users are necessary to assess
+comfort, safety, cognitive load, and long-term usability. Fu
+ture improvements will incorporate user feedback to enhance
+directional distance estimation and obstacle awareness. Ad
+ditionally, efforts will focus on optimizing the system for
+smooth operation on portable, low-power devices. The find
+ings contribute to ongoing research in camera-based assistive
+technologies, highlighting that low-cost, offline, AI-driven
+systems can significantly enhance environmental awareness
+and independence for visually impaired individuals.
+ACKNOWLEDGEMENT
+The authors would like to express their sincere gratitude
+to Department of Computer Science and Business Systems,
+Dr. N.G.P. Institute of Technology. Special thanks are extended
+to all faculty members and peers who offered their assistance
+and motivation during the development of this project.
+REFERENCES
+[1] B. L. Raghupathy and J. Nithyashri, “VisionAid: Enhancing accessibility
+for the visually impaired with YOLO and gTTS,” in Proceedings of
+the 2025 International Conference on Visual Analytics and Data Visu
+alization (ICVADV), IEEE, Mar. 2025, pp. 928–934, doi: 10.1109/IC
+VADV63329.2025.10961199.
+[2] N. Singh, R. Sivakumar, N. Prasath, and C. J. Kumar, “Blind-Aid: Depth
+prediction using object detection to facilitate navigation for the visually
+impaired,” in Lecture Notes in Networks and Systems, pp. 485–501,
+2024, doi: 10.1007/978-981-97-4895-2 40.
+[3] G. H. L, F. Flammini, S. Srividhya, C. M. L, and S. Selvam, Computer
+Science Engineering, 2024, doi: 10.1201/9781003565024.
+[4] I. A. Mahmood and A. F. Abbas, “Smart AI vision aid: Real-time audio
+guidance for the visually impaired,” IAR Journal of Engineering and
+Technology, vol. 6, pp. 1–11, 2025, doi: 10.47310/iarjet.2025.v06i01.01.
+[5] N. Khan, M. Diviya, K. Kumbhat, and R. Prasanna, “Enhancing accessi
+bility and autonomy for visually impaired individuals using AEyeD: An
+assistive system,” in Proceedings of the 2025 International Conference
+on Innovative Trends in Information Technology (ICITIIT), IEEE, Feb.
+2025, pp. 1–6, doi: 10.1109/ICITIIT64777.2025.11040814.
+[6] M. L. Prasad, V. Varshitha, A. P. Goud, R. Bindu, C. Srinivasulu, and
+S. J. Rao, “AI-driven solutions with CNN and IoT for enhancing visual
+impairments,” in Proceedings of the 2025 International Conference on
+Emerging Systems and Intelligent Computing (ESIC), IEEE, Feb. 2025,
+pp. 394–399, doi: 10.1109/ESIC64052.2025.10962599.
+[7] K. Guravaiah, Y. S. Bhavadeesh, P. Shwejan, A. H. Vardhan, and
+S. Lavanya, “Third eye: Object recognition and speech generation for
+visually impaired,” Procedia Computer Science, vol. 218, pp. 1144
+1155, 2022, doi: 10.1016/j.procs.2023.01.093.
+[8] P. Nandwani, G. Jain, S. Jain, A. K. Phulre, S. Joshi, and R. Swaroop,
+“Speech-based visual aid for the blind eye using deep convolution
+neural network,” in Proceedings of the 2024 International Conference on
+Emerging Trends in Networks and Computer Communications (ETNCC),
+IEEE, Jul. 2024, pp. 1–6, doi: 10.1109/ETNCC63262.2024.10767556.
+[9] A. S. Rao, R. Poojary, K. P. Bh, R. A. Ar, H. Kumar, and H. N. Shenoy,
+“Wearable assistive device for enhanced navigation in visually impaired
+individuals using YOLO-based object detection,” in Proceedings of
+the 2025 Fifth International Conference on Advances in Electrical,
+Computing, Communication and Sustainable Technologies (ICAECT),
+IEEE, Jan. 2025, pp. 1–7, doi: 10.1109/ICAECT63952.2025.10958989.
+[10] S. Maharana, S. Das, P. K. Sahu, D. Mohanty, and O. Patnaik, “A smart
+assistive navigation system for the visually impaired using YOLOv5,”
+in Lecture Notes in Networks and Systems, pp. 245–254, 2025,
