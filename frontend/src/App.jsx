@@ -19,7 +19,7 @@ import ResultsDisplay from './components/ResultsDisplay';
 import SettingsPanel from './components/SettingsPanel';
 import HowItWorks from './components/HowItWorks';
 
-const API_BASE = 'https://visual-mobility-aid.onrender.com';
+const API_BASE = 'https://madhan0073-visual-mobility-aid.hf.space';
 
 function App() {
   const [activeTab, setActiveTab] = useState('upload');
